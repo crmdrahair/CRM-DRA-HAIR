@@ -5245,5 +5245,546 @@ onAuthStateChanged(crm.auth, async user => {
 </script>
 
 
+
+
+<style>
+/* DRA_THAIS_LEAD_SAVE_PIPELINE_CLOUD_V17 */
+.crm-toast-v17{
+  position:fixed;right:18px;bottom:18px;z-index:99999;max-width:360px;
+  background:#fffaf0;border:1px solid rgba(191,155,58,.35);color:#5f4513;
+  box-shadow:0 14px 38px rgba(39,29,12,.14);border-radius:8px;
+  padding:12px 14px;font-size:13px;font-weight:700
+}
+</style>
+
+<script>
+/* DRA_THAIS_LEAD_SAVE_PIPELINE_CLOUD_V17 */
+(function(){
+  'use strict';
+  const LEADS_KEY = 'dra_thais_crm_leads_v8';
+  const OLD_KEYS = ['dra_thais_crm_leads_v7','dra_thais_crm_leads_v6'];
+  const STAGES = ['Novo contato','Pré-avaliação','Orçamento enviado','Negociação','Fechado','Perdido'];
+  const CHANNELS = ['Instagram','WhatsApp','Site','Indicação','Google','Manual','Moskit','Moskit Boost','MOSKIT_API_V2'];
+
+  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function norm(v){ return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim(); }
+  function readJSON(key){
+    try { const val = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(val) ? val : []; }
+    catch(e){ return []; }
+  }
+  function writeJSON(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+  function normalizeStage(stage){
+    const s = norm(stage);
+    if(s.startsWith('pre')) return 'Pré-avaliação';
+    if(s.startsWith('orc')) return 'Orçamento enviado';
+    if(s.startsWith('neg')) return 'Negociação';
+    if(s.startsWith('fechado')) return 'Fechado';
+    if(s.startsWith('perdido')) return 'Perdido';
+    return 'Novo contato';
+  }
+  function leadKey(lead){
+    return String(lead.id || lead.moskitId || [lead.name, lead.tel, lead.email, lead.cpf].join('|'));
+  }
+  function mergeLeads(){
+    const map = new Map();
+    [...OLD_KEYS, LEADS_KEY].forEach(key => {
+      readJSON(key).forEach(raw => {
+        if(!raw || !raw.name) return;
+        const lead = Object.assign({}, raw, { etapa: normalizeStage(raw.etapa || raw.stage || raw.status) });
+        map.set(leadKey(lead), Object.assign({}, map.get(leadKey(lead)) || {}, lead));
+      });
+    });
+    const leads = Array.from(map.values());
+    writeJSON(LEADS_KEY, leads);
+    window.__draThaisLeadsV8 = leads;
+    return leads;
+  }
+  function loadLeads(){
+    const current = readJSON(LEADS_KEY).filter(l => l && l.name);
+    if(current.length) {
+      window.__draThaisLeadsV8 = current;
+      return current;
+    }
+    return mergeLeads();
+  }
+  function saveLeads(leads){
+    const clean = (Array.isArray(leads) ? leads : []).filter(l => l && l.name).map(l => Object.assign({}, l, { etapa: normalizeStage(l.etapa) }));
+    writeJSON(LEADS_KEY, clean);
+    window.__draThaisLeadsV8 = clean;
+    return clean;
+  }
+  async function syncLead(lead){
+    try {
+      if(window.firebaseCRM?.auth?.currentUser && window.firebaseCRM.saveClinicDoc) {
+        await window.firebaseCRM.saveClinicDoc('leads', lead.id, Object.assign({}, lead, {
+          etapa: normalizeStage(lead.etapa),
+          updatedAt: new Date().toISOString(),
+          syncedFrom: 'crm-v17'
+        }));
+        return true;
+      }
+    } catch(e) {
+      console.warn('Lead salvo localmente, mas não sincronizou no Firestore:', e);
+    }
+    return false;
+  }
+  function toast(message){
+    document.querySelectorAll('.crm-toast-v17').forEach(t => t.remove());
+    document.body.insertAdjacentHTML('beforeend','<div class="crm-toast-v17">'+esc(message)+'</div>');
+    setTimeout(() => document.querySelectorAll('.crm-toast-v17').forEach(t => t.remove()), 4200);
+  }
+  function isLeadTabVisible(){
+    const leadRoot = document.getElementById('m-lead');
+    if(!leadRoot) return false;
+    return getComputedStyle(leadRoot).display !== 'none';
+  }
+  function readLeadModal(){
+    const inputs = Array.from(document.querySelectorAll('#m-lead input,#m-lead select,#m-lead textarea'));
+    return {
+      id:'lead-'+Date.now(),
+      name:inputs[0]?.value?.trim() || '',
+      tel:inputs[1]?.value?.trim() || '',
+      cpf:inputs[2]?.value?.trim() || '',
+      idade:inputs[3]?.value?.trim() || '',
+      email:inputs[4]?.value?.trim() || '',
+      sexo:inputs[5]?.value || '',
+      canal:inputs[6]?.value || 'Manual',
+      temp:inputs[7]?.value || 'Morno',
+      etapa:normalizeStage(inputs[8]?.value || 'Novo contato'),
+      proc:inputs[9]?.value?.trim() || 'A definir',
+      valor:inputs[10]?.value?.trim() || '',
+      obs:inputs[11]?.value?.trim() || '',
+      ultimo:'Agora',
+      createdAt:new Date().toISOString()
+    };
+  }
+  function clearLeadModal(){
+    document.querySelectorAll('#m-lead input,#m-lead textarea').forEach(el => { el.value = ''; });
+    const selects = Array.from(document.querySelectorAll('#m-lead select'));
+    if(selects[1]) selects[1].value = 'Manual';
+    if(selects[2]) selects[2].value = 'Morno';
+    if(selects[3]) selects[3].value = 'Novo contato';
+  }
+  async function saveNewLeadFromModal(event){
+    if(!isLeadTabVisible()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const lead = readLeadModal();
+    if(!lead.name || !(lead.tel || lead.email || lead.cpf)) {
+      alert('Preencha nome e pelo menos telefone, e-mail ou CPF do lead.');
+      return;
+    }
+    const leads = loadLeads();
+    leads.unshift(lead);
+    saveLeads(leads);
+    const cloud = await syncLead(lead);
+    if(typeof closeModal === 'function') closeModal();
+    clearLeadModal();
+    resetPipelineFilters();
+    refreshLeadViews();
+    const open = window.openLeadV10 || window.openLeadV9 || window.openLeadV8 || window.openLeadV7;
+    if(typeof open === 'function') setTimeout(() => open(lead.id), 80);
+    toast(cloud ? 'Lead cadastrado e salvo na nuvem.' : 'Lead cadastrado neste navegador. Faça login para sincronizar na nuvem.');
+  }
+  function patchModalSave(){
+    const save = document.querySelector('#modal-main .modal-foot .btn-gold');
+    if(!save || save.dataset.v17LeadSave === '1') return;
+    save.dataset.v17LeadSave = '1';
+    save.addEventListener('click', saveNewLeadFromModal, true);
+  }
+  function patchLeadModalOptions(){
+    const root = document.getElementById('m-lead');
+    if(!root) return;
+    const selects = root.querySelectorAll('select');
+    if(selects[1]) {
+      const value = selects[1].value || 'Manual';
+      selects[1].innerHTML = CHANNELS.map(c => '<option>'+esc(c)+'</option>').join('');
+      selects[1].value = CHANNELS.includes(value) ? value : 'Manual';
+    }
+    if(selects[3]) {
+      const value = normalizeStage(selects[3].value);
+      selects[3].innerHTML = STAGES.map(s => '<option>'+esc(s)+'</option>').join('');
+      selects[3].value = value;
+    }
+  }
+  function resetPipelineFilters(){
+    const days = document.getElementById('pipe-days-v10');
+    if(days && days.value !== 'all') {
+      days.value = 'all';
+      days.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    const q = document.getElementById('pipe-q-v10');
+    if(q && !q.value.trim()) q.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+  function patchPipelineControls(){
+    const days = document.getElementById('pipe-days-v10');
+    if(days && !days.dataset.v17AllDefault) {
+      days.dataset.v17AllDefault = '1';
+      days.value = 'all';
+      days.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    const q = document.getElementById('pipe-q-v10');
+    if(q && !q.dataset.v17ClearFix) {
+      q.dataset.v17ClearFix = '1';
+      q.addEventListener('input', function(){
+        if(!q.value.trim()) {
+          const daysNow = document.getElementById('pipe-days-v10');
+          if(daysNow && daysNow.value !== 'all') {
+            daysNow.value = 'all';
+            daysNow.dispatchEvent(new Event('change', {bubbles:true}));
+          }
+          setTimeout(refreshLeadViews, 0);
+        }
+      });
+    }
+  }
+  function refreshLeadViews(){
+    mergeLeads();
+    if(typeof window.renderLeadViewsV6 === 'function') window.renderLeadViewsV6();
+    if(typeof window.renderDashboardV11 === 'function') window.renderDashboardV11();
+    setTimeout(patchPipelineControls, 80);
+  }
+  function patchFirestoreApply(){
+    const oldApply = window.applyFirestoreLeadsV6;
+    window.applyFirestoreLeadsV6 = function(remoteLeads){
+      if(!Array.isArray(remoteLeads) || !remoteLeads.length) {
+        if(typeof oldApply === 'function') oldApply(remoteLeads);
+        return;
+      }
+      const local = loadLeads();
+      const map = new Map(local.map(l => [leadKey(l), l]));
+      remoteLeads.forEach(raw => {
+        if(!raw || !raw.name) return;
+        const lead = Object.assign({}, raw, { etapa: normalizeStage(raw.etapa || raw.stage || raw.status), id: raw.id || raw.moskitId || ('remote-'+Date.now()) });
+        map.set(leadKey(lead), Object.assign({}, map.get(leadKey(lead)) || {}, lead));
+      });
+      saveLeads(Array.from(map.values()));
+      if(typeof oldApply === 'function') {
+        try { oldApply(Array.from(map.values())); } catch(e) { console.warn('Render antigo de Firestore falhou:', e); }
+      }
+      refreshLeadViews();
+    };
+  }
+  function wrapOpenLeadModal(){
+    const oldOpen = window.openLeadModal;
+    window.openLeadModal = function(){
+      if(typeof oldOpen === 'function') oldOpen.apply(this, arguments);
+      else document.getElementById('modal-main')?.classList.add('open');
+      if(typeof switchMTab === 'function') switchMTab(document.querySelectorAll('.mtab')[1], 'm-lead');
+      patchLeadModalOptions();
+      patchModalSave();
+    };
+  }
+  function boot(){
+    mergeLeads();
+    patchFirestoreApply();
+    wrapOpenLeadModal();
+    patchLeadModalOptions();
+    patchModalSave();
+    patchPipelineControls();
+    refreshLeadViews();
+    setTimeout(patchPipelineControls, 500);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
+
+
+
+<style>
+/* DRA_THAIS_BULK_DELETE_V18 */
+.bulk-select-v18{
+  width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex:0 0 auto
+}
+.bulk-cell-v18{
+  display:inline-flex;align-items:center;gap:10px;min-width:0
+}
+.bulk-delete-v18{
+  border-color:rgba(190,50,50,.35)!important;color:#a83232!important;background:#fffafa!important
+}
+.bulk-delete-v18:not(:disabled):hover{background:#fff0f0!important}
+.bulk-delete-v18:disabled{opacity:.45;cursor:not-allowed}
+.confirm-modal-v18{
+  position:fixed;inset:0;background:rgba(20,15,8,.46);z-index:99998;
+  display:none;align-items:center;justify-content:center;padding:18px
+}
+.confirm-modal-v18.open{display:flex}
+.confirm-card-v18{
+  width:min(460px,100%);background:#fff;border:1px solid var(--border);border-radius:8px;
+  box-shadow:0 22px 70px rgba(31,24,11,.24);padding:20px
+}
+.confirm-card-v18 h3{margin:0 0 8px;font-size:20px;color:var(--text)}
+.confirm-card-v18 p{margin:0 0 16px;color:var(--text-2);font-size:14px;line-height:1.45}
+.confirm-actions-v18{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:760px){
+  .bulk-cell-v18{gap:8px}
+  .confirm-actions-v18 .btn{width:100%;justify-content:center}
+}
+</style>
+
+<script type="module">
+/* DRA_THAIS_BULK_DELETE_V18_MODULE */
+import { doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+function waitFirebaseCRM() {
+  return new Promise(resolve => {
+    const tick = () => window.firebaseCRM ? resolve(window.firebaseCRM) : setTimeout(tick, 120);
+    tick();
+  });
+}
+
+const crm = await waitFirebaseCRM();
+window.firebaseCRMDeleteDoc = async function(collectionName, id) {
+  if (!crm?.auth?.currentUser) return false;
+  await deleteDoc(doc(crm.db, "clinics", crm.clinicId, collectionName, id));
+  return true;
+};
+</script>
+
+<script>
+/* DRA_THAIS_BULK_DELETE_V18 */
+(function(){
+  'use strict';
+  const LEAD_KEYS = ['dra_thais_crm_leads_v8','dra_thais_crm_leads_v7','dra_thais_crm_leads_v6'];
+  const PATIENTS_KEY = 'dra_thais_crm_patients_v11';
+  const selectedLeads = new Set();
+  const selectedPatients = new Set();
+  let pendingConfirm = null;
+
+  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function readJSON(key){
+    try { const value = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(value) ? value : []; }
+    catch(e){ return []; }
+  }
+  function writeJSON(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+  function getLeadId(row){
+    if(row.dataset.leadId) return row.dataset.leadId;
+    const raw = row.getAttribute('onclick') || '';
+    const match = raw.match(/openLead\w*\('([^']+)'\)/);
+    return match ? match[1] : '';
+  }
+  function ensureConfirm(){
+    if(document.getElementById('confirm-modal-v18')) return;
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="confirm-modal-v18" id="confirm-modal-v18">
+        <div class="confirm-card-v18">
+          <h3 id="confirm-title-v18">Confirmar exclusão</h3>
+          <p id="confirm-copy-v18"></p>
+          <div class="confirm-actions-v18">
+            <button class="btn btn-outline" type="button" onclick="closeConfirmV18()">Cancelar</button>
+            <button class="btn btn-gold" type="button" onclick="confirmBulkDeleteV18()">Excluir</button>
+          </div>
+        </div>
+      </div>`);
+  }
+  function askConfirm(title, copy, action){
+    ensureConfirm();
+    pendingConfirm = action;
+    document.getElementById('confirm-title-v18').textContent = title;
+    document.getElementById('confirm-copy-v18').textContent = copy;
+    document.getElementById('confirm-modal-v18').classList.add('open');
+  }
+  window.closeConfirmV18 = function(){
+    document.getElementById('confirm-modal-v18')?.classList.remove('open');
+    pendingConfirm = null;
+  };
+  window.confirmBulkDeleteV18 = async function(){
+    const action = pendingConfirm;
+    closeConfirmV18();
+    if(typeof action === 'function') await action();
+  };
+  async function deleteRemote(collectionName, id){
+    try {
+      if(typeof window.firebaseCRMDeleteDoc === 'function') await window.firebaseCRMDeleteDoc(collectionName, id);
+    } catch(e) {
+      console.warn('Não foi possível excluir no Firestore:', collectionName, id, e);
+    }
+  }
+  function refreshAfterDelete(){
+    if(typeof window.renderLeadViewsV6 === 'function') window.renderLeadViewsV6();
+    if(typeof window.renderPatients === 'function') window.renderPatients();
+    if(typeof window.renderDashboardV11 === 'function') window.renderDashboardV11();
+    setTimeout(() => { decorateLeadList(); decoratePatients(); }, 80);
+  }
+  function addLeadToolbar(){
+    const bar = document.querySelector('#view-leads .filter-bar');
+    if(!bar || bar.querySelector('.lead-delete-selected-v18')) return;
+    bar.insertAdjacentHTML('beforeend', '<button class="btn btn-outline btn-sm bulk-delete-v18 lead-delete-selected-v18" type="button" disabled>Excluir selecionados</button>');
+    bar.querySelector('.lead-delete-selected-v18').onclick = () => {
+      const count = selectedLeads.size;
+      if(!count) return;
+      askConfirm('Excluir leads selecionados', `Você deseja mesmo excluir ${count} lead${count > 1 ? 's' : ''}? Essa ação remove os selecionados da lista filtrada e da nuvem quando estiver logado.`, deleteSelectedLeads);
+    };
+  }
+  function updateLeadButton(){
+    const btn = document.querySelector('.lead-delete-selected-v18');
+    if(btn) {
+      btn.disabled = selectedLeads.size === 0;
+      btn.textContent = selectedLeads.size ? `Excluir selecionados (${selectedLeads.size})` : 'Excluir selecionados';
+    }
+    const all = Array.from(document.querySelectorAll('.lead-check-v18'));
+    const master = document.querySelector('.lead-check-all-v18');
+    if(master) {
+      master.checked = !!all.length && all.every(cb => cb.checked);
+      master.indeterminate = all.some(cb => cb.checked) && !master.checked;
+    }
+  }
+  function decorateLeadList(){
+    addLeadToolbar();
+    const table = document.querySelector('#view-leads .leads-table');
+    if(!table) return;
+    const head = table.querySelector('.lt-head');
+    if(head && !head.querySelector('.lead-check-all-v18')) {
+      const first = head.firstElementChild;
+      if(first) first.innerHTML = '<span class="bulk-cell-v18"><input class="bulk-select-v18 lead-check-all-v18" type="checkbox"> <span>'+first.innerHTML+'</span></span>';
+      head.querySelector('.lead-check-all-v18')?.addEventListener('click', e => {
+        e.stopPropagation();
+        const checked = e.currentTarget.checked;
+        document.querySelectorAll('.lead-check-v18').forEach(cb => {
+          cb.checked = checked;
+          if(checked) selectedLeads.add(cb.dataset.leadId);
+          else selectedLeads.delete(cb.dataset.leadId);
+        });
+        updateLeadButton();
+      });
+    }
+    table.querySelectorAll('.lt-row').forEach(row => {
+      const id = getLeadId(row);
+      if(!id || row.querySelector('.lead-check-v18')) return;
+      row.dataset.leadId = id;
+      const first = row.querySelector('.lt-cell');
+      if(!first) return;
+      first.insertAdjacentHTML('afterbegin', `<input class="bulk-select-v18 lead-check-v18" type="checkbox" data-lead-id="${esc(id)}">`);
+      const cb = first.querySelector('.lead-check-v18');
+      cb.checked = selectedLeads.has(id);
+      cb.addEventListener('click', e => {
+        e.stopPropagation();
+        if(cb.checked) selectedLeads.add(id);
+        else selectedLeads.delete(id);
+        updateLeadButton();
+      });
+    });
+    updateLeadButton();
+  }
+  async function deleteSelectedLeads(){
+    const ids = Array.from(selectedLeads);
+    if(!ids.length) return;
+    LEAD_KEYS.forEach(key => {
+      const next = readJSON(key).filter(lead => !ids.includes(String(lead.id)));
+      writeJSON(key, next);
+      if(key === 'dra_thais_crm_leads_v8') window.__draThaisLeadsV8 = next;
+    });
+    await Promise.all(ids.map(id => deleteRemote('leads', id)));
+    selectedLeads.clear();
+    refreshAfterDelete();
+  }
+  function addPatientToolbar(){
+    const bar = document.querySelector('#view-prontuarios .filter-bar');
+    if(!bar || bar.querySelector('.patient-delete-selected-v18')) return;
+    const meta = bar.querySelector('.patient-search-meta-v16');
+    const html = '<button class="btn btn-outline btn-sm bulk-delete-v18 patient-delete-selected-v18" type="button" disabled>Excluir selecionados</button>';
+    if(meta) meta.insertAdjacentHTML('beforebegin', html);
+    else bar.insertAdjacentHTML('beforeend', html);
+    bar.querySelector('.patient-delete-selected-v18').onclick = () => {
+      const count = selectedPatients.size;
+      if(!count) return;
+      askConfirm('Excluir prontuários selecionados', `Você deseja mesmo excluir ${count} paciente${count > 1 ? 's' : ''} do prontuário? Essa ação remove os cadastros selecionados e da nuvem quando estiver logado.`, deleteSelectedPatients);
+    };
+  }
+  function updatePatientButton(){
+    const btn = document.querySelector('.patient-delete-selected-v18');
+    if(btn) {
+      btn.disabled = selectedPatients.size === 0;
+      btn.textContent = selectedPatients.size ? `Excluir selecionados (${selectedPatients.size})` : 'Excluir selecionados';
+    }
+    const all = Array.from(document.querySelectorAll('.patient-check-v18'));
+    const master = document.querySelector('.patient-check-all-v18');
+    if(master) {
+      master.checked = !!all.length && all.every(cb => cb.checked);
+      master.indeterminate = all.some(cb => cb.checked) && !master.checked;
+    }
+  }
+  function decoratePatients(){
+    addPatientToolbar();
+    const table = document.querySelector('#view-prontuarios .patients-table');
+    if(!table) return;
+    const head = table.querySelector('.pt-head');
+    if(head && !head.querySelector('.patient-check-all-v18')) {
+      const first = head.firstElementChild;
+      if(first) first.innerHTML = '<span class="bulk-cell-v18"><input class="bulk-select-v18 patient-check-all-v18" type="checkbox"> <span>'+first.innerHTML+'</span></span>';
+      head.querySelector('.patient-check-all-v18')?.addEventListener('click', e => {
+        e.stopPropagation();
+        const checked = e.currentTarget.checked;
+        document.querySelectorAll('.patient-check-v18').forEach(cb => {
+          cb.checked = checked;
+          if(checked) selectedPatients.add(cb.dataset.patientId);
+          else selectedPatients.delete(cb.dataset.patientId);
+        });
+        updatePatientButton();
+      });
+    }
+    table.querySelectorAll('.pt-row').forEach(row => {
+      const id = row.dataset.patientId;
+      if(!id || row.querySelector('.patient-check-v18')) return;
+      const first = row.querySelector('.pt-cell');
+      if(!first) return;
+      first.insertAdjacentHTML('afterbegin', `<input class="bulk-select-v18 patient-check-v18" type="checkbox" data-patient-id="${esc(id)}">`);
+      const cb = first.querySelector('.patient-check-v18');
+      cb.checked = selectedPatients.has(id);
+      cb.addEventListener('click', e => {
+        e.stopPropagation();
+        if(cb.checked) selectedPatients.add(id);
+        else selectedPatients.delete(id);
+        updatePatientButton();
+      });
+    });
+    updatePatientButton();
+  }
+  async function deleteSelectedPatients(){
+    const ids = Array.from(selectedPatients);
+    if(!ids.length) return;
+    const next = readJSON(PATIENTS_KEY).filter(patient => !ids.includes(String(patient.id)));
+    writeJSON(PATIENTS_KEY, next);
+    await Promise.all(ids.map(id => deleteRemote('patients', id)));
+    selectedPatients.clear();
+    refreshAfterDelete();
+  }
+  function wrapRenderers(){
+    const oldLeads = window.renderLeadViewsV6;
+    if(typeof oldLeads === 'function' && !oldLeads.v18BulkWrapped) {
+      const wrapped = function(){
+        const result = oldLeads.apply(this, arguments);
+        setTimeout(decorateLeadList, 40);
+        return result;
+      };
+      wrapped.v18BulkWrapped = true;
+      window.renderLeadViewsV6 = wrapped;
+    }
+    const oldPatients = window.renderPatients;
+    if(typeof oldPatients === 'function' && !oldPatients.v18BulkWrapped) {
+      const wrappedPatients = function(){
+        const result = oldPatients.apply(this, arguments);
+        setTimeout(decoratePatients, 40);
+        return result;
+      };
+      wrappedPatients.v18BulkWrapped = true;
+      window.renderPatients = wrappedPatients;
+    }
+  }
+  function boot(){
+    ensureConfirm();
+    wrapRenderers();
+    decorateLeadList();
+    decoratePatients();
+    setTimeout(() => { decorateLeadList(); decoratePatients(); }, 500);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
+
 </body>
 </html>
