@@ -6374,5 +6374,554 @@ body{
 </style>
 
 
+
+<style>
+/* DRA_THAIS_UX_ASSETS_V20 */
+#view-leads .filter-bar,
+#view-prontuarios .filter-bar{
+  gap:12px!important;
+  align-items:center!important;
+}
+.select-mode-v20{
+  background:#fff!important;
+  border:1px solid rgba(184,151,58,.42)!important;
+  color:#8f6c16!important;
+  font-weight:700!important;
+}
+.select-mode-v20.active{
+  background:rgba(184,151,58,.12)!important;
+  border-color:#b8973a!important;
+}
+body:not(.bulk-leads-active) #view-leads .lead-check-v18,
+body:not(.bulk-leads-active) #view-leads .lead-check-all-v18,
+body:not(.bulk-patients-active) #view-prontuarios .patient-check-v18,
+body:not(.bulk-patients-active) #view-prontuarios .patient-check-all-v18{
+  display:none!important;
+}
+body:not(.bulk-leads-active) #view-leads .lead-delete-selected-v18,
+body:not(.bulk-patients-active) #view-prontuarios .patient-delete-selected-v18{
+  display:none!important;
+}
+body:not(.bulk-leads-active) #view-leads .bulk-cell-v18,
+body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
+  gap:0!important;
+}
+#view-leads .lt-head,
+#view-prontuarios .pt-head{
+  background:#fffaf0!important;
+  border:1px solid rgba(184,151,58,.22)!important;
+  border-radius:10px 10px 0 0!important;
+  color:#6f7688!important;
+  font-size:12px!important;
+  letter-spacing:.04em!important;
+  text-transform:uppercase!important;
+}
+#view-leads .lt-row,
+#view-prontuarios .pt-row{
+  min-height:72px!important;
+}
+#view-leads .lt-cell:first-child,
+#view-prontuarios .pt-cell:first-child{
+  gap:12px!important;
+}
+#view-pipeline .kanban-wrap{
+  gap:22px!important;
+  padding:20px 22px 30px!important;
+  scroll-padding-left:22px!important;
+}
+#view-pipeline .kanban-col{
+  border-radius:10px!important;
+  overflow:hidden!important;
+  box-shadow:0 8px 24px rgba(31,24,11,.06)!important;
+}
+#view-pipeline .kcol-body,
+#view-pipeline .kc-body{
+  padding:10px!important;
+}
+#view-pipeline .kcard{
+  margin-bottom:12px!important;
+}
+.lead-whatsapp-btn,
+#lead-panel .lead-whatsapp-btn{
+  background:#16a34a!important;
+  border-color:#16a34a!important;
+  color:#fff!important;
+  font-weight:800!important;
+}
+.lead-whatsapp-btn:hover,
+#lead-panel .lead-whatsapp-btn:hover{
+  background:#12833c!important;
+  color:#fff!important;
+}
+.uploaded-file-v20{
+  cursor:pointer;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+}
+.uploaded-file-v20 .file-actions-v20{
+  display:flex;
+  gap:8px;
+  margin-left:auto;
+}
+.uploaded-file-v20 .file-open-v20{
+  width:auto!important;
+  min-width:72px;
+}
+.uploaded-file:not(.uploaded-file-v20){
+  display:none!important;
+}
+.asset-empty-v20{
+  border:1px dashed rgba(184,151,58,.32);
+  border-radius:10px;
+  padding:18px;
+  margin-top:14px;
+  color:#7f8799;
+  text-align:center;
+  background:#fffdf8;
+}
+.patient-real-files-v20{
+  margin-top:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.file-preview-v20{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,12,8,.62);
+  padding:18px;
+}
+.file-preview-v20.open{display:flex}
+.file-preview-card-v20{
+  width:min(920px,96vw);
+  max-height:92vh;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 22px 80px rgba(0,0,0,.28);
+  overflow:hidden;
+}
+.file-preview-head-v20{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+}
+.file-preview-body-v20{
+  padding:16px;
+  max-height:78vh;
+  overflow:auto;
+  text-align:center;
+}
+.file-preview-body-v20 img{
+  max-width:100%;
+  max-height:72vh;
+  border-radius:8px;
+}
+.sheet-print-v20{
+  background:#16a34a!important;
+  border-color:#16a34a!important;
+  color:#fff!important;
+}
+.sheet-save-v20{
+  background:#b8973a!important;
+  color:#fff!important;
+}
+.care-card{
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+}
+.care-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(184,151,58,.45)!important;
+  box-shadow:0 14px 28px rgba(31,24,11,.09)!important;
+}
+@media(max-width:900px){
+  #view-leads .filter-bar,
+  #view-prontuarios .filter-bar{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+  #view-leads .filter-bar .search-box,
+  #view-prontuarios .filter-bar .search-box{
+    grid-column:1 / -1!important;
+  }
+  #view-pipeline .kanban-wrap{
+    padding:16px!important;
+    gap:16px!important;
+  }
+}
+@media(max-width:640px){
+  #view-leads .filter-bar,
+  #view-prontuarios .filter-bar{
+    grid-template-columns:1fr!important;
+  }
+  #view-pipeline .kanban-col{
+    min-width:88vw!important;
+  }
+  .uploaded-file-v20{
+    flex-wrap:wrap;
+  }
+  .uploaded-file-v20 .file-actions-v20{
+    width:100%;
+    margin-left:0;
+  }
+}
+</style>
+
+<script>
+/* DRA_THAIS_UX_ASSETS_V20 */
+(function(){
+  'use strict';
+
+  const PATIENTS_KEY = 'dra_thais_crm_patients_v11';
+  const uploadStore = window.__uploadedFilesV20 || (window.__uploadedFilesV20 = {});
+  let fileSeq = 0;
+  let currentPatientV20 = null;
+
+  function esc(v){
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function readJSON(key){
+    try { const value = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(value) ? value : []; }
+    catch(e){ return []; }
+  }
+  function initials(name){
+    const parts = String(name || 'Paciente').trim().split(/\s+/).filter(Boolean);
+    return ((parts[0]?.[0] || 'P') + (parts[1]?.[0] || '')).toUpperCase();
+  }
+  function toast(msg){
+    if(typeof window.showToastV6 === 'function') window.showToastV6(msg);
+    else alert(msg);
+  }
+  function clearChecks(selector){
+    document.querySelectorAll(selector + ':checked').forEach(cb => cb.click());
+  }
+
+  function ensureSelectionButtons(){
+    const leadBar = document.querySelector('#view-leads .filter-bar');
+    if(leadBar && !leadBar.querySelector('.lead-select-mode-v20')){
+      const del = leadBar.querySelector('.lead-delete-selected-v18');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-sm select-mode-v20 lead-select-mode-v20';
+      btn.textContent = 'Selecionar';
+      btn.onclick = function(){
+        const active = !document.body.classList.contains('bulk-leads-active');
+        document.body.classList.toggle('bulk-leads-active', active);
+        btn.classList.toggle('active', active);
+        btn.textContent = active ? 'Cancelar seleção' : 'Selecionar';
+        if(!active) clearChecks('.lead-check-v18');
+      };
+      leadBar.insertBefore(btn, del || null);
+    }
+
+    const patientBar = document.querySelector('#view-prontuarios .filter-bar');
+    if(patientBar && !patientBar.querySelector('.patient-select-mode-v20')){
+      const del = patientBar.querySelector('.patient-delete-selected-v18');
+      const meta = patientBar.querySelector('.patient-search-meta-v16');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-sm select-mode-v20 patient-select-mode-v20';
+      btn.textContent = 'Selecionar';
+      btn.onclick = function(){
+        const active = !document.body.classList.contains('bulk-patients-active');
+        document.body.classList.toggle('bulk-patients-active', active);
+        btn.classList.toggle('active', active);
+        btn.textContent = active ? 'Cancelar seleção' : 'Selecionar';
+        if(!active) clearChecks('.patient-check-v18');
+      };
+      if(del) patientBar.insertBefore(btn, del);
+      else if(meta) patientBar.insertBefore(btn, meta);
+      else patientBar.appendChild(btn);
+    }
+  }
+
+  function ensurePreviewModal(){
+    if(document.getElementById('file-preview-modal-v20')) return;
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="file-preview-v20" id="file-preview-modal-v20">
+        <div class="file-preview-card-v20">
+          <div class="file-preview-head-v20">
+            <strong id="file-preview-title-v20">Arquivo</strong>
+            <button class="btn btn-outline btn-sm" type="button" onclick="closeFilePreviewV20()">Fechar</button>
+          </div>
+          <div class="file-preview-body-v20" id="file-preview-body-v20"></div>
+        </div>
+      </div>`);
+  }
+  window.closeFilePreviewV20 = function(){
+    document.getElementById('file-preview-modal-v20')?.classList.remove('open');
+  };
+  window.openUploadedFileV20 = function(id){
+    const item = uploadStore[id];
+    if(!item) return toast('Arquivo indisponível nesta sessão.');
+    if(item.type && item.type.startsWith('image/')){
+      ensurePreviewModal();
+      document.getElementById('file-preview-title-v20').textContent = item.name;
+      document.getElementById('file-preview-body-v20').innerHTML = '<img src="'+item.url+'" alt="'+esc(item.name)+'">';
+      document.getElementById('file-preview-modal-v20').classList.add('open');
+      return;
+    }
+    window.open(item.url, '_blank', 'noopener');
+  };
+  window.removeUploadedFileV20 = function(id){
+    const row = document.querySelector('[data-upload-id="'+CSS.escape(id)+'"]');
+    row?.remove();
+    const item = uploadStore[id];
+    if(item?.url) URL.revokeObjectURL(item.url);
+    delete uploadStore[id];
+  };
+
+  function zoneList(zone){
+    let list = zone.parentElement.querySelector('.patient-real-files-v20');
+    if(!list){
+      list = document.createElement('div');
+      list.className = 'patient-real-files-v20';
+      zone.insertAdjacentElement('afterend', list);
+    }
+    return list;
+  }
+  function kindFromZone(zone){
+    const tab = zone.closest('.patient-tab-content')?.id || '';
+    if(tab.includes('fotos')) return 'foto';
+    if(tab.includes('videos')) return 'video';
+    return 'documento';
+  }
+  function renderFiles(zone, files){
+    const list = zoneList(zone);
+    Array.from(files || []).forEach(file => {
+      const id = 'up-v20-' + (++fileSeq);
+      const url = URL.createObjectURL(file);
+      uploadStore[id] = { name:file.name, type:file.type, size:file.size, url, kind:kindFromZone(zone) };
+      const isImage = file.type && file.type.startsWith('image/');
+      const size = file.size ? (file.size / 1024 / 1024).toFixed(2).replace('.', ',') + ' MB' : 'Arquivo';
+      const row = document.createElement('div');
+      row.className = 'uploaded-file uploaded-file-v20';
+      row.dataset.uploadId = id;
+      row.innerHTML = `
+        <span>${isImage ? '🖼️' : '📎'}</span>
+        <div style="flex:1;min-width:180px">
+          <strong>${esc(file.name)}</strong>
+          <div style="color:var(--text-3);font-size:11px">${size} · anexado nesta sessão</div>
+        </div>
+        <div class="file-actions-v20">
+          <button class="btn btn-outline btn-sm file-open-v20" type="button" onclick="event.stopPropagation();openUploadedFileV20('${id}')">Abrir</button>
+          <button class="btn btn-outline btn-sm" type="button" onclick="event.stopPropagation();removeUploadedFileV20('${id}')">Remover</button>
+        </div>`;
+      row.onclick = () => window.openUploadedFileV20(id);
+      list.prepend(row);
+    });
+  }
+  function setupUploadsV20(){
+    document.querySelectorAll('.upload-zone').forEach(zone => {
+      if(zone.dataset.v20Ready) return;
+      zone.dataset.v20Ready = '1';
+      let input = zone.nextElementSibling && zone.nextElementSibling.matches?.('input[type="file"]') ? zone.nextElementSibling : null;
+      if(!input){
+        input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.hidden = true;
+        if(kindFromZone(zone) === 'foto') input.accept = 'image/*,.heic';
+        zone.insertAdjacentElement('afterend', input);
+      }
+      zone.addEventListener('click', () => input.click());
+      zone.addEventListener('dragover', event => { event.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', event => {
+        event.preventDefault();
+        zone.classList.remove('drag-over');
+        renderFiles(zone, event.dataTransfer.files);
+      });
+      input.addEventListener('change', () => {
+        renderFiles(zone, input.files);
+        input.value = '';
+      });
+    });
+  }
+
+  function replaceFakeAssets(){
+    const photos = document.getElementById('pt-fotos');
+    const docs = document.getElementById('pt-docs');
+    photos?.querySelectorAll('div[style*="grid-template-columns"]').forEach(el => {
+      if(el.textContent.includes('Pré-op') || el.textContent.includes('Pós-op')) el.remove();
+    });
+    docs?.querySelectorAll('div[style*="flex-direction:column"]').forEach(el => {
+      if(el.textContent.includes('Exame de sangue completo') || el.textContent.includes('Risco cirúrgico')) el.remove();
+    });
+    if(photos && !photos.querySelector('.asset-empty-photo-v20')){
+      photos.querySelector('.upload-zone')?.insertAdjacentHTML('afterend', '<div class="asset-empty-v20 asset-empty-photo-v20">Nenhuma foto real anexada ainda.</div>');
+    }
+    if(docs && !docs.querySelector('.asset-empty-doc-v20')){
+      docs.querySelector('.upload-zone')?.insertAdjacentHTML('afterend', '<div class="asset-empty-v20 asset-empty-doc-v20">Nenhum documento real anexado ainda.</div>');
+    }
+  }
+  function cleanNewPatientClinicalContent(){
+    const p = currentPatientV20 || {};
+    const isNew = !!(p.leadId || p.origem || p.createdAt || p.id);
+    replaceFakeAssets();
+    setupUploadsV20();
+    if(!isNew) return;
+    const infoCards = document.querySelectorAll('#pt-info .info-card');
+    infoCards.forEach(card => {
+      const h = card.querySelector('h4')?.textContent?.trim().toLowerCase() || '';
+      if(h.includes('observa')) {
+        const pEl = card.querySelector('p');
+        if(pEl) pEl.textContent = 'Nenhuma observação clínica cadastrada ainda.';
+      }
+      if(h.includes('hist')) {
+        card.querySelectorAll('.info-row .iv').forEach(el => {
+          if(el.textContent.trim() === '9' || el.textContent.trim() === '1' || el.textContent.includes('---')) el.textContent = '0';
+        });
+      }
+    });
+    const pront = document.querySelector('#pt-prontuario textarea');
+    if(pront){
+      pront.value = '';
+      pront.placeholder = 'Prontuário ainda sem registros. Use as fichas de atendimento para iniciar.';
+    }
+    document.querySelectorAll('.medical-history .medical-row').forEach(row => row.remove());
+    const mh = document.querySelector('.medical-history');
+    if(mh && !mh.querySelector('.asset-empty-v20')){
+      mh.insertAdjacentHTML('beforeend', '<div class="asset-empty-v20">Nenhum registro médico incluso ainda.</div>');
+    }
+  }
+  function setCurrentPatientFromId(id){
+    const found = readJSON(PATIENTS_KEY).find(p => String(p.id) === String(id));
+    if(found) currentPatientV20 = found;
+  }
+  function wrapPatientOpeners(){
+    if(window.__patientOpenWrappedV20) return;
+    window.__patientOpenWrappedV20 = true;
+    const oldOpen = window.openPatient;
+    if(typeof oldOpen === 'function'){
+      window.openPatient = function(name, sub, tel, email, grau, grafts, proc, medico, ultimo, agend, cancel, convenio){
+        currentPatientV20 = {name, sub, tel, email, grau, grafts, proc, medico, ultimo, agend, cancel, convenio};
+        const result = oldOpen.apply(this, arguments);
+        setTimeout(cleanNewPatientClinicalContent, 80);
+        return result;
+      };
+    }
+    const oldOpenV11 = window.openPatientV11;
+    if(typeof oldOpenV11 === 'function'){
+      window.openPatientV11 = function(id){
+        setCurrentPatientFromId(id);
+        const result = oldOpenV11.apply(this, arguments);
+        setTimeout(cleanNewPatientClinicalContent, 100);
+        return result;
+      };
+    }
+  }
+
+  function switchTab(tabId){
+    const btn = document.querySelector('.ptab[onclick*="'+tabId+'"]');
+    if(btn && typeof window.switchPTab === 'function') window.switchPTab(btn, tabId);
+    else {
+      document.querySelectorAll('.patient-tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId)?.classList.add('active');
+    }
+  }
+  function careBody(type){
+    const today = new Date().toLocaleDateString('pt-BR');
+    if(type === 'nova') return '<div class="sheet-grid-2"><div class="sheet-field"><label>Nome da ficha</label><input id="care-title-v20" placeholder="Ex.: Avaliação capilar"></div><div class="sheet-field"><label>Data</label><input value="'+today+'"></div></div><div class="sheet-field"><label>Conteúdo</label><textarea class="rich-text" style="min-height:220px" placeholder="Registre as informações da ficha..."></textarea></div>';
+    if(type === 'historico') return '<div class="sheet-field"><label>Registro histórico</label><textarea class="rich-text" style="min-height:240px" placeholder="Descreva evolução, consultas anteriores e observações relevantes."></textarea></div>';
+    if(type === 'prescricao' || type === 'memed') return '<div class="sheet-grid-2"><div class="sheet-field"><label>Medicamento / fórmula</label><input placeholder="Nome, concentração"></div><div class="sheet-field"><label>Quantidade</label><input placeholder="Ex.: 30 cápsulas"></div></div><div class="sheet-field"><label>Posologia</label><textarea class="rich-text" style="min-height:150px" placeholder="Como o paciente deve usar"></textarea></div><div class="sheet-field"><label>Orientações</label><textarea class="rich-text" style="min-height:120px" placeholder="Cuidados e observações"></textarea></div>';
+    if(type === 'exames') return '<div class="sheet-field"><label>Pedido de exames</label><textarea class="rich-text" style="min-height:220px" placeholder="Liste exames solicitados e justificativa clínica."></textarea></div>';
+    if(type === 'resultados') return '<div class="sheet-field"><label>Resultado / laudo</label><textarea class="rich-text" style="min-height:220px" placeholder="Resumo dos resultados e conduta."></textarea></div>';
+    return null;
+  }
+  function enhanceCareSheet(type){
+    const modal = document.getElementById('sheet-modal-v5');
+    const body = document.getElementById('sheet-body-v5');
+    const actions = modal?.querySelector('.sheet-actions');
+    if(!modal || !body || !actions) return;
+    modal.dataset.careType = type;
+    const replacement = careBody(type);
+    if(replacement) body.innerHTML = replacement;
+    actions.querySelectorAll('.sheet-print-v20,.sheet-save-v20').forEach(el => el.remove());
+    const save = actions.querySelector('.btn-gold');
+    if(type === 'atestado' || type === 'prescricao' || type === 'memed' || type === 'exames' || type === 'resultados'){
+      const print = document.createElement('button');
+      print.type = 'button';
+      print.className = 'btn sheet-print-v20';
+      print.textContent = 'Imprimir';
+      print.onclick = () => printCareSheetV20(type);
+      actions.insertBefore(print, save || null);
+    }
+    if(save){
+      save.classList.add('sheet-save-v20');
+      save.onclick = function(){
+        toast('Registro salvo nesta sessão.');
+        if(typeof window.closeCareSheetV5 === 'function') window.closeCareSheetV5();
+      };
+    }
+  }
+  function printCareSheetV20(type){
+    const title = document.getElementById('sheet-title-v5')?.textContent || 'Documento';
+    const patient = (document.getElementById('sheet-sub-v5')?.textContent || '').replace(/^:\s*/, '') || 'Paciente';
+    const text = document.getElementById('att-text-v5')?.value ||
+      Array.from(document.querySelectorAll('#sheet-body-v5 textarea,input')).map(el => {
+        const label = el.closest('.sheet-field')?.querySelector('label')?.textContent || '';
+        return (label ? label + ': ' : '') + (el.value || '');
+      }).filter(Boolean).join('\n\n');
+    const win = window.open('', '_blank', 'noopener');
+    if(!win) return toast('O navegador bloqueou a janela de impressão.');
+    win.document.write('<!doctype html><html><head><title>'+esc(title)+'</title><style>body{font-family:Montserrat,Arial,sans-serif;color:#151821;padding:42px;line-height:1.55}.brand{text-align:center;color:#9a7620;font-weight:800;margin-bottom:36px}.doc{max-width:760px;margin:0 auto}h1{font-size:24px;margin:0 0 8px}.sub{color:#6f7688;margin-bottom:30px}.body{white-space:pre-wrap;font-size:15px;border-top:1px solid #eadfca;padding-top:24px}.sig{margin-top:80px;text-align:center}.line{border-top:1px solid #151821;width:320px;margin:0 auto 8px}@media print{button{display:none}}</style></head><body><div class="doc"><div class="brand">TM<br>Instituto Dra. Thais Machado</div><h1>'+esc(title)+'</h1><div class="sub">'+esc(patient)+' · '+new Date().toLocaleDateString('pt-BR')+'</div><div class="body">'+esc(text)+'</div><div class="sig"><div class="line"></div><strong>Dra. Thais Machado</strong></div></div><script>setTimeout(function(){window.print()},250)<\/script></body></html>');
+    win.document.close();
+  }
+  window.printCareSheetV20 = printCareSheetV20;
+
+  function wrapCareOpen(){
+    if(window.__careOpenWrappedV20) return;
+    window.__careOpenWrappedV20 = true;
+    const oldOpen = window.openCareSheetV5;
+    if(typeof oldOpen !== 'function') return;
+    window.openCareSheetV5 = function(type){
+      if(type === 'fotos'){ switchTab('pt-fotos'); setupUploadsV20(); return; }
+      if(type === 'exames' || type === 'resultados'){ switchTab('pt-docs'); setupUploadsV20(); if(type === 'resultados') setTimeout(() => toast('Use Documentos para anexar resultados de exames.'), 80); return; }
+      const result = oldOpen.apply(this, arguments);
+      setTimeout(() => enhanceCareSheet(type), 40);
+      return result;
+    };
+  }
+
+  function wrapRenderers(){
+    ['renderLeadViewsV6','renderAllLeads','renderPatients'].forEach(name => {
+      const old = window[name];
+      if(typeof old !== 'function' || old.__wrappedV20) return;
+      const wrapped = function(){
+        const result = old.apply(this, arguments);
+        setTimeout(ensureSelectionButtons, 80);
+        return result;
+      };
+      wrapped.__wrappedV20 = true;
+      window[name] = wrapped;
+    });
+  }
+
+  function boot(){
+    ensureSelectionButtons();
+    setupUploadsV20();
+    replaceFakeAssets();
+    wrapPatientOpeners();
+    wrapCareOpen();
+    wrapRenderers();
+    setTimeout(() => {
+      ensureSelectionButtons();
+      setupUploadsV20();
+      replaceFakeAssets();
+    }, 500);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
 </body>
 </html>
