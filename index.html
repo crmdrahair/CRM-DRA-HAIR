@@ -7399,5 +7399,55 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
 })();
 </script>
 
+
+<script>
+/* DRA_THAIS_LOGIN_ERRORS_V24 */
+(function(){
+  'use strict';
+
+  function explainAuthError(error){
+    const code = error?.code || '';
+    const map = {
+      'auth/invalid-credential': 'E-mail ou senha não conferem neste projeto Firebase. Confira a senha cadastrada ou crie uma nova senha para este usuário.',
+      'auth/wrong-password': 'Senha incorreta para este e-mail.',
+      'auth/user-not-found': 'Esse e-mail não existe neste projeto Firebase.',
+      'auth/invalid-email': 'O e-mail digitado não parece válido.',
+      'auth/user-disabled': 'Esse usuário está desativado no Firebase.',
+      'auth/operation-not-allowed': 'O login por Email/password não está ativado no Firebase.',
+      'auth/network-request-failed': 'Falha de conexão com o Firebase. Verifique a internet e tente novamente.',
+      'auth/too-many-requests': 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.',
+      'auth/unauthorized-domain': 'Este domínio não está autorizado no Firebase Authentication.'
+    };
+    return (map[code] || 'Não foi possível entrar. Erro retornado pelo Firebase: ' + (code || 'sem código')) + (code ? ' [' + code + ']' : '');
+  }
+
+  function boot(){
+    const form = document.getElementById('firebase-login-form');
+    const errorBox = document.getElementById('firebase-login-error');
+    if(!form || !errorBox || form.dataset.loginErrorsV24) return;
+    form.dataset.loginErrorsV24 = '1';
+
+    form.addEventListener('submit', function(){
+      setTimeout(() => {
+        const originalConsoleError = console.error;
+        if(console.__loginWrappedV24) return;
+        console.__loginWrappedV24 = true;
+        console.error = function(error){
+          try {
+            if(error?.code && String(error.code).startsWith('auth/')) {
+              errorBox.textContent = explainAuthError(error);
+            }
+          } catch(e) {}
+          return originalConsoleError.apply(console, arguments);
+        };
+      }, 0);
+    }, true);
+  }
+
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
 </body>
 </html>
