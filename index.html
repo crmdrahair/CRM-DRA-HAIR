@@ -2783,8 +2783,20 @@ form?.addEventListener("submit", async (event) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    errorBox.textContent = "Não foi possível entrar. Confira e-mail, senha e se Email/password está ativo no Firebase.";
-    console.error(error);
+    const code = error?.code || "";
+    const authMessages = {
+      "auth/invalid-credential": "E-mail ou senha não conferem neste projeto Firebase. Se o usuário existe, redefina a senha no Firebase e tente novamente. [auth/invalid-credential]",
+      "auth/wrong-password": "Senha incorreta para este e-mail. [auth/wrong-password]",
+      "auth/user-not-found": "Esse e-mail não existe neste projeto Firebase. [auth/user-not-found]",
+      "auth/invalid-email": "O e-mail digitado não parece válido. [auth/invalid-email]",
+      "auth/user-disabled": "Esse usuário está desativado no Firebase. [auth/user-disabled]",
+      "auth/operation-not-allowed": "O provedor Email/password não está ativado no Firebase. [auth/operation-not-allowed]",
+      "auth/unauthorized-domain": "Este domínio não está autorizado no Firebase Authentication. Adicione crmdrahair.github.io. [auth/unauthorized-domain]",
+      "auth/network-request-failed": "Falha de conexão com o Firebase. Verifique internet, bloqueador ou firewall. [auth/network-request-failed]",
+      "auth/too-many-requests": "Muitas tentativas. O Firebase bloqueou temporariamente esse login. Aguarde alguns minutos. [auth/too-many-requests]"
+    };
+    errorBox.textContent = authMessages[code] || ("Erro real do Firebase: " + (code || error?.message || "sem código"));
+    console.error("Firebase Auth error:", error);
   }
 });
 
