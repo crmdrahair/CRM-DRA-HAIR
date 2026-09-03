@@ -7518,5 +7518,270 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
 }
 </style>
 
+
+<style>
+/* DRA_THAIS_PROFILE_BIRTHDAY_FIX_V28 */
+.birthday-panel-v21 .birthday-list-v21 + .birthday-section-title-v21,
+.birthday-panel-v21 .birthday-month-v28{
+  display:none!important;
+}
+.birthday-panel-v21 .birthday-summary-v21{
+  grid-template-columns:1fr 1fr!important;
+}
+.birthday-whatsapp-v21{
+  text-decoration:none!important;
+}
+.sidebar-user{
+  flex-wrap:wrap!important;
+}
+.sidebar-user .sidebar-profile-edit-v28{
+  margin-left:auto;
+  border:1px solid rgba(184,151,58,.28);
+  background:#fff;
+  color:#8f6c16;
+  border-radius:8px;
+  padding:7px 9px;
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.sidebar-user .sidebar-profile-edit-v28:hover{
+  background:#fffaf0;
+}
+.profile-modal-v28{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(19,15,8,.48);
+}
+.profile-modal-v28.open{display:flex}
+.profile-card-v28{
+  width:min(420px,100%);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 24px 80px rgba(31,24,11,.24);
+  padding:20px;
+}
+.profile-card-v28 h3{
+  margin:0 0 6px;
+  font-size:20px;
+}
+.profile-card-v28 p{
+  margin:0 0 16px;
+  color:#7f8799;
+  font-size:13px;
+}
+.profile-field-v28{
+  display:grid;
+  gap:6px;
+  margin-bottom:12px;
+}
+.profile-field-v28 label{
+  font-size:12px;
+  font-weight:800;
+  color:#6f7688;
+}
+.profile-field-v28 input{
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:11px 12px;
+  font:inherit;
+}
+.profile-actions-v28{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:16px;
+}
+@media(max-width:760px){
+  .sidebar-user .sidebar-profile-edit-v28,
+  .sidebar-user .sidebar-logout-v8{
+    width:100%;
+    margin-left:0!important;
+  }
+}
+</style>
+
+<script>
+/* DRA_THAIS_PROFILE_BIRTHDAY_FIX_V28 */
+(function(){
+  'use strict';
+
+  const PROFILE_KEY = 'dra_thais_crm_user_profiles_v28';
+  let currentUserV28 = null;
+
+  function esc(v){
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function readProfiles(){
+    try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}') || {}; }
+    catch(e){ return {}; }
+  }
+  function writeProfiles(value){
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(value || {}));
+  }
+  function profileId(){
+    return currentUserV28?.uid || currentUserV28?.email || 'local';
+  }
+  function defaultName(user){
+    return user?.displayName || (user?.email ? user.email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Usuário');
+  }
+  function getProfile(){
+    const profiles = readProfiles();
+    const id = profileId();
+    return Object.assign({
+      name: defaultName(currentUserV28),
+      role: 'Administrador',
+      email: currentUserV28?.email || ''
+    }, profiles[id] || {});
+  }
+  function toast(msg){
+    if(typeof window.showToastV6 === 'function') window.showToastV6(msg);
+    else alert(msg);
+  }
+
+  function updateSidebarProfile(){
+    const user = document.querySelector('.sidebar-user');
+    if(!user) return;
+    const profile = getProfile();
+    const strong = user.querySelector('strong');
+    const span = user.querySelector('span:not(.avatar):not(.firebase-dot)');
+    if(strong) strong.textContent = profile.name || 'Usuário';
+    if(span) span.textContent = profile.role || 'Equipe';
+    if(!user.querySelector('.sidebar-profile-edit-v28')){
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sidebar-profile-edit-v28';
+      btn.textContent = 'Editar';
+      btn.onclick = openProfileModalV28;
+      const logout = user.querySelector('.sidebar-logout-v8');
+      user.insertBefore(btn, logout || null);
+    }
+  }
+  function ensureModal(){
+    if(document.getElementById('profile-modal-v28')) return;
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="profile-modal-v28" id="profile-modal-v28">
+        <div class="profile-card-v28">
+          <h3>Editar perfil</h3>
+          <p id="profile-email-v28"></p>
+          <div class="profile-field-v28">
+            <label>Nome exibido</label>
+            <input id="profile-name-v28" type="text">
+          </div>
+          <div class="profile-field-v28">
+            <label>Função</label>
+            <input id="profile-role-v28" type="text" placeholder="Ex.: Recepção, Comercial, Administrador">
+          </div>
+          <div class="profile-actions-v28">
+            <button class="btn btn-outline btn-sm" type="button" onclick="closeProfileModalV28()">Cancelar</button>
+            <button class="btn btn-gold btn-sm" type="button" onclick="saveProfileV28()">Salvar</button>
+          </div>
+        </div>
+      </div>`);
+  }
+  function openProfileModalV28(){
+    ensureModal();
+    const profile = getProfile();
+    document.getElementById('profile-email-v28').textContent = profile.email || currentUserV28?.email || '';
+    document.getElementById('profile-name-v28').value = profile.name || '';
+    document.getElementById('profile-role-v28').value = profile.role || '';
+    document.getElementById('profile-modal-v28').classList.add('open');
+  }
+  window.openProfileModalV28 = openProfileModalV28;
+  window.closeProfileModalV28 = function(){
+    document.getElementById('profile-modal-v28')?.classList.remove('open');
+  };
+  window.saveProfileV28 = async function(){
+    const profiles = readProfiles();
+    const id = profileId();
+    profiles[id] = {
+      name: document.getElementById('profile-name-v28')?.value.trim() || defaultName(currentUserV28),
+      role: document.getElementById('profile-role-v28')?.value.trim() || 'Equipe',
+      email: currentUserV28?.email || ''
+    };
+    writeProfiles(profiles);
+    updateSidebarProfile();
+    closeProfileModalV28();
+    toast('Perfil atualizado.');
+    try {
+      if(window.firebaseCRM?.auth?.currentUser && window.firebaseCRM.saveClinicDoc) {
+        await window.firebaseCRM.saveClinicDoc('users', window.firebaseCRM.auth.currentUser.uid, profiles[id]);
+      }
+    } catch(e) {
+      console.warn('Não foi possível salvar perfil na nuvem:', e);
+    }
+  };
+
+  function cleanupBirthdays(){
+    const panel = document.querySelector('.birthday-panel-v21');
+    if(!panel) return;
+    const headerTitle = panel.querySelector('.card-header h3');
+    if(headerTitle) headerTitle.textContent = 'Aniversariantes';
+    const summary = panel.querySelector('.birthday-summary-v21');
+    if(summary){
+      const boxes = summary.querySelectorAll('.birthday-mini-v21');
+      if(boxes[0]) boxes[0].querySelector('span').textContent = 'Hoje';
+      if(boxes[1]) boxes[1].querySelector('span').textContent = 'No mês';
+    }
+    Array.from(panel.querySelectorAll('.birthday-section-title-v21')).forEach(title => {
+      if((title.textContent || '').toLowerCase().includes('aniversariantes do mês')){
+        title.parentElement?.remove();
+      }
+    });
+    panel.querySelectorAll('.birthday-whatsapp-v21').forEach(btn => {
+      btn.style.textDecoration = 'none';
+    });
+  }
+  function hookDashboard(){
+    if(window.__dashboardBirthdayCleanupV28) return;
+    window.__dashboardBirthdayCleanupV28 = true;
+    const old = window.renderDashboardV11;
+    if(typeof old === 'function'){
+      window.renderDashboardV11 = function(){
+        const result = old.apply(this, arguments);
+        setTimeout(cleanupBirthdays, 90);
+        setTimeout(cleanupBirthdays, 300);
+        return result;
+      };
+    }
+    const oldSave = window.saveBirthdayTemplateV21;
+    if(typeof oldSave === 'function'){
+      window.saveBirthdayTemplateV21 = function(){
+        const result = oldSave.apply(this, arguments);
+        setTimeout(cleanupBirthdays, 90);
+        return result;
+      };
+    }
+  }
+  function observeAuth(){
+    const tick = () => {
+      const user = window.firebaseCRM?.auth?.currentUser;
+      if(user && (!currentUserV28 || currentUserV28.uid !== user.uid)){
+        currentUserV28 = user;
+        updateSidebarProfile();
+      }
+      setTimeout(tick, 1200);
+    };
+    tick();
+  }
+  function boot(){
+    hookDashboard();
+    observeAuth();
+    updateSidebarProfile();
+    cleanupBirthdays();
+    setTimeout(cleanupBirthdays, 500);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
 </body>
 </html>
