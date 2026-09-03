@@ -2677,6 +2677,7 @@ if (typeof oldRenderAgendaV6 === 'function') {
     </div>
     <div class="firebase-error" id="firebase-error"></div>
     <button class="btn btn-gold" type="submit" style="width:100%;justify-content:center">Entrar</button>
+    <button class="btn firebase-google-btn-v27" id="firebase-google-login-btn" type="button" style="width:100%;justify-content:center;margin-top:10px">Entrar com Google</button>
     <div class="firebase-note">Primeiro crie esse usuário em Authentication > Users no Firebase Console.</div>
   </form>
 </div>
@@ -2694,6 +2695,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import {
   getAuth,
   signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -2730,6 +2733,8 @@ const userbar = document.getElementById("firebase-userbar");
 const userLabel = document.getElementById("firebase-user-label");
 const logoutBtn = document.getElementById("firebase-logout-btn");
 const prepareBtn = document.getElementById("firebase-prepare-btn");
+const googleLoginBtn = document.getElementById("firebase-google-login-btn");
+const googleProvider = new GoogleAuthProvider();
 
 function firebasePath(name) {
   return collection(db, "clinics", clinicId, name);
@@ -2797,6 +2802,30 @@ form?.addEventListener("submit", async (event) => {
     };
     errorBox.textContent = authMessages[code] || ("Erro real do Firebase: " + (code || error?.message || "sem código"));
     console.error("Firebase Auth error:", error);
+  }
+});
+
+googleLoginBtn?.addEventListener("click", async () => {
+  errorBox.textContent = "";
+  googleLoginBtn.disabled = true;
+  googleLoginBtn.textContent = "Abrindo Google...";
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    const code = error?.code || "";
+    const authMessages = {
+      "auth/popup-closed-by-user": "Login com Google cancelado antes de concluir. [auth/popup-closed-by-user]",
+      "auth/popup-blocked": "O navegador bloqueou a janela do Google. Libere pop-ups para este site. [auth/popup-blocked]",
+      "auth/unauthorized-domain": "Este domínio não está autorizado no Firebase Authentication. Adicione crmdrahair.github.io. [auth/unauthorized-domain]",
+      "auth/operation-not-allowed": "O provedor Google não está ativado no Firebase Authentication. [auth/operation-not-allowed]",
+      "auth/api-key-not-valid": "A API key do Firebase publicada no site ainda está inválida ou antiga. Atualize o index.html no GitHub e recarregue com Ctrl+F5. [auth/api-key-not-valid]",
+      "auth/network-request-failed": "Falha de conexão com o Firebase. Verifique internet, bloqueador ou firewall. [auth/network-request-failed]"
+    };
+    errorBox.textContent = authMessages[code] || ("Erro real do Firebase no Google: " + (code || error?.message || "sem código"));
+    console.error("Firebase Google Auth error:", error);
+  } finally {
+    googleLoginBtn.disabled = false;
+    googleLoginBtn.textContent = "Entrar com Google";
   }
 });
 
@@ -7460,6 +7489,34 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
   if(document.readyState !== 'loading') boot();
 })();
 </script>
+
+
+<style>
+/* DRA_THAIS_GOOGLE_LOGIN_V27 */
+.firebase-google-btn-v27{
+  background:#fff!important;
+  border:1px solid rgba(184,151,58,.35)!important;
+  color:#151821!important;
+  font-weight:800!important;
+}
+.firebase-google-btn-v27:hover{
+  background:#fffaf0!important;
+  border-color:#b8973a!important;
+}
+.firebase-google-btn-v27::before{
+  content:"G";
+  display:inline-grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  margin-right:8px;
+  border-radius:50%;
+  background:#fff;
+  color:#4285f4;
+  font-weight:900;
+  font-family:Arial,sans-serif;
+}
+</style>
 
 </body>
 </html>
