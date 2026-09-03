@@ -7182,8 +7182,13 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
     const phone = digits(patient.tel || patient.telefone || patient.whatsapp);
     if(!phone) return '';
     const normalized = phone.length <= 11 ? '55' + phone : phone;
-    const message = getTemplate().replaceAll('{nome}', patient.name || 'Paciente').replaceAll('NOME', patient.name || 'Paciente');
-    return 'https://wa.me/' + normalized + '?text=' + encodeURIComponent(message);
+    const message = getTemplate().replaceAll('{nome}', patient.name || 'Paciente').replaceAll('NOME', patient.name || 'Paciente').normalize('NFC');
+    const params = new URLSearchParams();
+    params.set('phone', normalized);
+    params.set('text', message);
+    params.set('type', 'phone_number');
+    params.set('app_absent', '0');
+    return 'https://api.whatsapp.com/send?' + params.toString();
   }
   function openPatientFromBirthday(id){
     if(typeof window.openPatientV11 === 'function') window.openPatientV11(id);
@@ -7879,6 +7884,42 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
   }
   document.addEventListener('DOMContentLoaded', boot);
   if(document.readyState !== 'loading') boot();
+})();
+</script>
+
+
+<script>
+/* DRA_THAIS_WHATSAPP_UTF8_V30 */
+(function(){
+  'use strict';
+  function openBirthdayWhatsAppV30(event, href){
+    event?.stopPropagation?.();
+    event?.preventDefault?.();
+    window.open(href, '_blank', 'noopener');
+  }
+  window.openBirthdayWhatsAppV30 = openBirthdayWhatsAppV30;
+  function patchBirthdayLinksV30(){
+    document.querySelectorAll('.birthday-whatsapp-v21[href*="api.whatsapp.com/send"]').forEach(link => {
+      if(link.dataset.utf8V30) return;
+      link.dataset.utf8V30 = '1';
+      const href = link.getAttribute('href');
+      link.setAttribute('onclick', "openBirthdayWhatsAppV30(event, this.href)");
+      link.setAttribute('href', href);
+      link.style.textDecoration = 'none';
+    });
+  }
+  const oldDash = window.renderDashboardV11;
+  if(typeof oldDash === 'function' && !oldDash.__whatsappUtf8V30){
+    const wrapped = function(){
+      const result = oldDash.apply(this, arguments);
+      setTimeout(patchBirthdayLinksV30, 120);
+      return result;
+    };
+    wrapped.__whatsappUtf8V30 = true;
+    window.renderDashboardV11 = wrapped;
+  }
+  document.addEventListener('DOMContentLoaded', () => setTimeout(patchBirthdayLinksV30, 300));
+  if(document.readyState !== 'loading') setTimeout(patchBirthdayLinksV30, 300);
 })();
 </script>
 
