@@ -7783,5 +7783,104 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
 })();
 </script>
 
+
+<style>
+/* DRA_THAIS_BIRTHDAY_SIMPLE_PANEL_V29 */
+.birthday-panel-v21 .card-header h3{
+  font-size:18px!important;
+}
+.birthday-panel-v21 .birthday-summary-v21,
+.birthday-panel-v21 .birthday-section-title-v21{
+  display:none!important;
+}
+.birthday-panel-v21 .card-body{
+  gap:14px!important;
+}
+.birthday-panel-v21 .birthday-list-v21{
+  border-bottom:1px solid var(--border);
+  padding-bottom:14px;
+}
+.birthday-panel-v21 .birthday-template-v21{
+  border-top:none!important;
+  padding-top:0!important;
+}
+.birthday-panel-v21 .birthday-template-v21 .birthday-section-title-v21{
+  display:flex!important;
+  justify-content:flex-start!important;
+}
+.birthday-panel-v21 .birthday-template-v21 .birthday-section-title-v21 span{
+  font-size:15px;
+}
+</style>
+
+<script>
+/* DRA_THAIS_BIRTHDAY_SIMPLE_PANEL_V29 */
+(function(){
+  'use strict';
+
+  function simplifyBirthdayPanelV29(){
+    const panel = document.querySelector('.birthday-panel-v21');
+    if(!panel) return;
+    const title = panel.querySelector('.card-header h3');
+    if(title) title.textContent = 'Aniversariantes do dia';
+
+    const date = panel.querySelector('.card-header .dash-updated-v11');
+    if(date) date.textContent = new Date().toLocaleDateString('pt-BR');
+
+    panel.querySelector('.birthday-summary-v21')?.remove();
+
+    Array.from(panel.querySelectorAll('.birthday-section-title-v21')).forEach(sectionTitle => {
+      const text = (sectionTitle.textContent || '').toLowerCase();
+      if(text.includes('aniversariantes do dia') || text.includes('aniversariantes do mês')){
+        sectionTitle.remove();
+      }
+    });
+
+    Array.from(panel.children).forEach(() => {});
+    Array.from(panel.querySelectorAll('.birthday-list-v21')).forEach((list, index) => {
+      if(index > 0) list.closest('div')?.remove();
+    });
+
+    const templateTitle = panel.querySelector('.birthday-template-v21 .birthday-section-title-v21 span');
+    if(templateTitle) templateTitle.textContent = 'Mensagem da ação Comercial';
+
+    panel.querySelectorAll('.birthday-whatsapp-v21').forEach(btn => {
+      btn.style.textDecoration = 'none';
+    });
+  }
+
+  function hook(){
+    if(window.__birthdaySimplePanelWrappedV29) return;
+    window.__birthdaySimplePanelWrappedV29 = true;
+    const oldDash = window.renderDashboardV11;
+    if(typeof oldDash === 'function'){
+      window.renderDashboardV11 = function(){
+        const result = oldDash.apply(this, arguments);
+        setTimeout(simplifyBirthdayPanelV29, 100);
+        setTimeout(simplifyBirthdayPanelV29, 350);
+        return result;
+      };
+    }
+    const oldSave = window.saveBirthdayTemplateV21;
+    if(typeof oldSave === 'function'){
+      window.saveBirthdayTemplateV21 = function(){
+        const result = oldSave.apply(this, arguments);
+        setTimeout(simplifyBirthdayPanelV29, 100);
+        return result;
+      };
+    }
+  }
+
+  function boot(){
+    hook();
+    simplifyBirthdayPanelV29();
+    setTimeout(simplifyBirthdayPanelV29, 250);
+    setTimeout(simplifyBirthdayPanelV29, 900);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
 </body>
 </html>
