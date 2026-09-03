@@ -2708,12 +2708,13 @@ import {
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAJCyiDyJl-2m5CiugDf0Wk1zOv5T4pyRk",
-  authDomain: "crmdrathaismachado.firebaseapp.com",
-  projectId: "crmdrathaismachado",
-  storageBucket: "crmdrathaismachado.firebasestorage.app",
-  messagingSenderId: "738038978707",
-  appId: "1:738038978707:web:b1f10be5c54a04cfe0d566"
+  apiKey: "AIzaSyCCS9dOLik0JImRgIFnqiqGNpuKdaV_wQ",
+  authDomain: "crm-dra-hair.firebaseapp.com",
+  projectId: "crm-dra-hair",
+  storageBucket: "crm-dra-hair.firebasestorage.app",
+  messagingSenderId: "245561851715",
+  appId: "1:245561851715:web:babf9ec93c4815b02979f6",
+  measurementId: "G-263QGH24JW"
 };
 
 const clinicId = "instituto-dra-thais";
@@ -6917,6 +6918,481 @@ body:not(.bulk-patients-active) #view-prontuarios .bulk-cell-v18{
       setupUploadsV20();
       replaceFakeAssets();
     }, 500);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
+
+<style>
+/* DRA_THAIS_BIRTHDAYS_DASHBOARD_V21 */
+.birthday-panel-v21 .card-body{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.birthday-summary-v21{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.birthday-mini-v21{
+  border:1px solid rgba(184,151,58,.22);
+  border-radius:10px;
+  padding:12px;
+  background:#fffdf8;
+}
+.birthday-mini-v21 strong{
+  display:block;
+  font-size:24px;
+  color:#151821;
+  line-height:1;
+}
+.birthday-mini-v21 span{
+  display:block;
+  margin-top:6px;
+  color:#7f8799;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.birthday-section-title-v21{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-weight:800;
+  color:#151821;
+}
+.birthday-list-v21{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.birthday-row-v21{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  transition:border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+.birthday-row-v21.clickable{
+  cursor:pointer;
+}
+.birthday-row-v21.clickable:hover{
+  border-color:rgba(184,151,58,.45);
+  box-shadow:0 10px 24px rgba(31,24,11,.08);
+  transform:translateY(-1px);
+}
+.birthday-person-v21{
+  min-width:0;
+}
+.birthday-person-v21 strong{
+  display:block;
+  color:#151821;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.birthday-person-v21 span{
+  display:block;
+  margin-top:2px;
+  color:#7f8799;
+  font-size:12px;
+}
+.birthday-whatsapp-v21{
+  background:#16a346!important;
+  border-color:#16a346!important;
+  color:#fff!important;
+  white-space:nowrap;
+}
+.birthday-whatsapp-v21:hover{
+  background:#12833c!important;
+  color:#fff!important;
+}
+.birthday-empty-v21{
+  border:1px dashed rgba(184,151,58,.35);
+  border-radius:10px;
+  padding:18px;
+  background:#fffdf8;
+  color:#7f8799;
+  text-align:center;
+  line-height:1.45;
+}
+.birthday-template-v21{
+  display:grid;
+  gap:8px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+.birthday-template-v21 textarea{
+  width:100%;
+  min-height:96px;
+  resize:vertical;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font:inherit;
+  line-height:1.45;
+  background:#fff;
+}
+.birthday-template-actions-v21{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.birthday-hint-v21{
+  color:#7f8799;
+  font-size:12px;
+}
+.birth-save-hint-v21{
+  margin-left:auto;
+  color:#16a346;
+  font-size:12px;
+  font-weight:700;
+}
+@media(max-width:640px){
+  .birthday-summary-v21{
+    grid-template-columns:1fr;
+  }
+  .birthday-row-v21{
+    grid-template-columns:1fr;
+  }
+  .birthday-whatsapp-v21{
+    width:100%!important;
+    justify-content:center;
+  }
+}
+</style>
+
+<script>
+/* DRA_THAIS_BIRTHDAYS_DASHBOARD_V21 */
+(function(){
+  'use strict';
+
+  const PATIENTS_KEY = 'dra_thais_crm_patients_v11';
+  const TEMPLATE_KEY = 'dra_thais_crm_birthday_message_v21';
+  const DEFAULT_TEMPLATE = 'Heyy {nome}, hoje é seu aniversário e nós do Instituto Dra. Thais Machado queremos te parabenizar! Que seu novo ciclo seja cheio de saúde, alegria e realizações.';
+  let activePatientIdV21 = null;
+
+  function esc(v){
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function digits(v){ return String(v || '').replace(/\D+/g, ''); }
+  function readPatients(){
+    try { const list = JSON.parse(localStorage.getItem(PATIENTS_KEY) || '[]'); return Array.isArray(list) ? list : []; }
+    catch(e){ return []; }
+  }
+  function savePatients(list){ localStorage.setItem(PATIENTS_KEY, JSON.stringify(list)); }
+  function toast(msg){
+    if(typeof window.showToastV6 === 'function') window.showToastV6(msg);
+    else alert(msg);
+  }
+  function getTemplate(){
+    return localStorage.getItem(TEMPLATE_KEY) || DEFAULT_TEMPLATE;
+  }
+  function setTemplate(value){
+    localStorage.setItem(TEMPLATE_KEY, value || DEFAULT_TEMPLATE);
+  }
+  function parseBirthday(value){
+    const raw = String(value || '').trim();
+    if(!raw) return null;
+    let day, month, year;
+    let m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m){ year = Number(m[1]); month = Number(m[2]); day = Number(m[3]); }
+    else {
+      m = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+      if(m){
+        day = Number(m[1]); month = Number(m[2]); year = Number(m[3]);
+        if(year < 100) year += 1900;
+      }
+    }
+    if(!day || !month || !year || month < 1 || month > 12 || day < 1 || day > 31) return null;
+    return {day, month, year, iso:String(year).padStart(4,'0') + '-' + String(month).padStart(2,'0') + '-' + String(day).padStart(2,'0')};
+  }
+  function patientBirthday(patient){
+    return parseBirthday(patient.nascimento || patient.dataNascimento || patient.birthdate || patient.birthday || patient.aniversario || patient.dob);
+  }
+  function ageOnBirthday(birth, now){
+    if(!birth?.year) return '';
+    return Math.max(0, now.getFullYear() - birth.year);
+  }
+  function birthdayItems(){
+    const now = new Date();
+    return readPatients()
+      .map(patient => {
+        const birth = patientBirthday(patient);
+        if(!birth) return null;
+        return { patient, birth, age:ageOnBirthday(birth, now) };
+      })
+      .filter(Boolean)
+      .sort((a,b) => (a.birth.day - b.birth.day) || String(a.patient.name || '').localeCompare(String(b.patient.name || '')));
+  }
+  function whatsappUrl(patient){
+    const phone = digits(patient.tel || patient.telefone || patient.whatsapp);
+    if(!phone) return '';
+    const normalized = phone.length <= 11 ? '55' + phone : phone;
+    const message = getTemplate().replaceAll('{nome}', patient.name || 'Paciente').replaceAll('NOME', patient.name || 'Paciente');
+    return 'https://wa.me/' + normalized + '?text=' + encodeURIComponent(message);
+  }
+  function openPatientFromBirthday(id){
+    if(typeof window.openPatientV11 === 'function') window.openPatientV11(id);
+  }
+  window.openPatientFromBirthdayV21 = openPatientFromBirthday;
+
+  function birthdayRow(item, todayOnly){
+    const patient = item.patient;
+    const url = whatsappUrl(patient);
+    const age = item.age ? item.age + ' anos' : 'idade não informada';
+    const date = String(item.birth.day).padStart(2,'0') + '/' + String(item.birth.month).padStart(2,'0');
+    return `<div class="birthday-row-v21 clickable" onclick="openPatientFromBirthdayV21('${esc(patient.id)}')">
+      <div class="birthday-person-v21">
+        <strong>${esc(patient.name || 'Paciente sem nome')}</strong>
+        <span>${esc(age)}${todayOnly ? '' : ' · ' + esc(date)}${patient.tel ? ' · ' + esc(patient.tel) : ''}</span>
+      </div>
+      ${url ? `<a class="btn btn-sm birthday-whatsapp-v21" href="${esc(url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ação Comercial</a>` : '<button class="btn btn-outline btn-sm" type="button" onclick="event.stopPropagation();alert(\'Paciente sem telefone/WhatsApp cadastrado.\')">Sem WhatsApp</button>'}
+    </div>`;
+  }
+  function birthdaysHtml(){
+    const now = new Date();
+    const items = birthdayItems();
+    const today = items.filter(item => item.birth.month === now.getMonth() + 1 && item.birth.day === now.getDate());
+    const month = items.filter(item => item.birth.month === now.getMonth() + 1);
+    const monthLabel = now.toLocaleDateString('pt-BR', {month:'long'});
+    const todayHtml = today.length
+      ? today.map(item => birthdayRow(item, true)).join('')
+      : '<div class="birthday-empty-v21">Nenhum aniversariante hoje.</div>';
+    const monthHtml = month.length
+      ? month.slice(0, 8).map(item => birthdayRow(item, false)).join('')
+      : '<div class="birthday-empty-v21">Nenhum paciente com aniversário cadastrado neste mês. Preencha a Data de Nascimento nos Dados Pessoais do prontuário.</div>';
+    return `
+      <div class="card birthday-panel-v21">
+        <div class="card-header"><h3>Aniversariantes</h3><span class="dash-updated-v11">${esc(monthLabel)}</span></div>
+        <div class="card-body">
+          <div class="birthday-summary-v21">
+            <div class="birthday-mini-v21"><strong>${today.length}</strong><span>Hoje</span></div>
+            <div class="birthday-mini-v21"><strong>${month.length}</strong><span>No mês</span></div>
+          </div>
+          <div>
+            <div class="birthday-section-title-v21"><span>Aniversariantes do dia</span></div>
+            <div class="birthday-list-v21">${todayHtml}</div>
+          </div>
+          <div>
+            <div class="birthday-section-title-v21"><span>Aniversariantes do mês</span></div>
+            <div class="birthday-list-v21">${monthHtml}</div>
+          </div>
+          <div class="birthday-template-v21">
+            <div class="birthday-section-title-v21"><span>Mensagem da ação comercial</span></div>
+            <textarea id="birthday-template-v21">${esc(getTemplate())}</textarea>
+            <div class="birthday-template-actions-v21">
+              <span class="birthday-hint-v21">Use {nome} para preencher automaticamente o nome do paciente.</span>
+              <button class="btn btn-outline btn-sm" type="button" onclick="saveBirthdayTemplateV21()">Salvar mensagem</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+  window.saveBirthdayTemplateV21 = function(){
+    const value = document.getElementById('birthday-template-v21')?.value || DEFAULT_TEMPLATE;
+    setTemplate(value);
+    renderBirthdayPanelV21();
+    toast('Mensagem de aniversário salva.');
+  };
+  function renderBirthdayPanelV21(){
+    const grid = document.querySelector('#view-dashboard .dashboard-real-grid-v11');
+    if(!grid) return;
+    const cards = Array.from(grid.children).filter(el => el.classList?.contains('card'));
+    const funnel = cards.find(card => (card.querySelector('.card-header h3')?.textContent || '').trim().toLowerCase().includes('funil comercial'));
+    const existing = grid.querySelector('.birthday-panel-v21');
+    if(existing) existing.outerHTML = birthdaysHtml();
+    else if(funnel) funnel.outerHTML = birthdaysHtml();
+    else grid.insertAdjacentHTML('beforeend', birthdaysHtml());
+  }
+
+  function birthInput(){
+    const tab = document.getElementById('pt-dados');
+    if(!tab) return null;
+    return Array.from(tab.querySelectorAll('input[type="date"], input')).find(input => {
+      const label = input.closest('.fg')?.querySelector('label')?.textContent || '';
+      return /nascimento/i.test(label);
+    }) || null;
+  }
+  function decoratePatientBirthForm(patient){
+    const input = birthInput();
+    if(input){
+      input.id = 'patient-birthdate-v21';
+      const birth = patientBirthday(patient || {});
+      if(birth) input.value = birth.iso;
+    }
+    const dados = document.getElementById('pt-dados');
+    const saveBtn = Array.from(dados?.querySelectorAll('button') || []).find(btn => /salvar dados/i.test(btn.textContent || ''));
+    if(saveBtn && !saveBtn.dataset.v21Ready){
+      saveBtn.dataset.v21Ready = '1';
+      saveBtn.addEventListener('click', event => {
+        event.preventDefault();
+        savePatientPersonalDataV21();
+      });
+    }
+  }
+  function savePatientPersonalDataV21(){
+    const patients = readPatients();
+    let patient = patients.find(p => String(p.id) === String(activePatientIdV21));
+    if(!patient){
+      const name = document.getElementById('dp-name-input')?.value?.trim();
+      patient = patients.find(p => String(p.name || '').trim().toLowerCase() === String(name || '').toLowerCase());
+    }
+    if(!patient) return toast('Abra um prontuário salvo para gravar os dados pessoais.');
+    patient.name = document.getElementById('dp-name-input')?.value?.trim() || patient.name;
+    patient.tel = document.getElementById('dp-tel-input')?.value?.trim() || patient.tel || '';
+    patient.email = document.getElementById('dp-email-input')?.value?.trim() || patient.email || '';
+    const birth = parseBirthday(document.getElementById('patient-birthdate-v21')?.value);
+    if(birth){
+      patient.nascimento = birth.iso;
+      patient.dataNascimento = birth.iso;
+    }
+    savePatients(patients);
+    if(typeof window.renderPatients === 'function') window.renderPatients();
+    if(typeof window.renderDashboardV11 === 'function') window.renderDashboardV11();
+    setTimeout(renderBirthdayPanelV21, 80);
+    const actions = document.querySelector('#pt-dados div[style*="justify-content:flex-end"]');
+    if(actions && !actions.querySelector('.birth-save-hint-v21')){
+      actions.insertAdjacentHTML('afterbegin', '<span class="birth-save-hint-v21">Dados salvos.</span>');
+      setTimeout(() => actions.querySelector('.birth-save-hint-v21')?.remove(), 2200);
+    }
+  }
+  window.savePatientPersonalDataV21 = savePatientPersonalDataV21;
+
+  function wrapPatientOpen(){
+    if(window.__birthdayPatientOpenWrappedV21) return;
+    window.__birthdayPatientOpenWrappedV21 = true;
+    const oldOpenV11 = window.openPatientV11;
+    if(typeof oldOpenV11 === 'function'){
+      window.openPatientV11 = function(id){
+        activePatientIdV21 = id;
+        const patient = readPatients().find(p => String(p.id) === String(id));
+        const result = oldOpenV11.apply(this, arguments);
+        setTimeout(() => decoratePatientBirthForm(patient), 120);
+        return result;
+      };
+    }
+    const oldOpen = window.openPatient;
+    if(typeof oldOpen === 'function'){
+      window.openPatient = function(name){
+        const patient = readPatients().find(p => String(p.name || '').trim().toLowerCase() === String(name || '').trim().toLowerCase());
+        activePatientIdV21 = patient?.id || activePatientIdV21;
+        const result = oldOpen.apply(this, arguments);
+        setTimeout(() => decoratePatientBirthForm(patient), 120);
+        return result;
+      };
+    }
+  }
+  function wrapDashboard(){
+    if(window.__birthdayDashboardWrappedV21) return;
+    window.__birthdayDashboardWrappedV21 = true;
+    const old = window.renderDashboardV11;
+    if(typeof old === 'function'){
+      window.renderDashboardV11 = function(){
+        const result = old.apply(this, arguments);
+        setTimeout(renderBirthdayPanelV21, 40);
+        return result;
+      };
+    }
+  }
+  function boot(){
+    wrapDashboard();
+    wrapPatientOpen();
+    setTimeout(renderBirthdayPanelV21, 120);
+  }
+  document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState !== 'loading') boot();
+})();
+</script>
+
+
+<style>
+/* DRA_THAIS_BIRTHDAY_TODAY_ONLY_V22 */
+.birthday-panel-v21 .birthday-summary-v21{
+  grid-template-columns:1fr!important;
+}
+.birthday-panel-v21 .birthday-mini-v21:nth-child(2),
+.birthday-panel-v21 .birthday-month-section-v22{
+  display:none!important;
+}
+.birthday-whatsapp-v21{
+  text-decoration:none!important;
+}
+.birthday-whatsapp-v21:hover,
+.birthday-whatsapp-v21:focus{
+  text-decoration:none!important;
+}
+</style>
+
+<script>
+/* DRA_THAIS_BIRTHDAY_TODAY_ONLY_V22 */
+(function(){
+  'use strict';
+  function trimBirthdayPanelV22(){
+    const panel = document.querySelector('.birthday-panel-v21');
+    if(!panel) return;
+    const title = panel.querySelector('.card-header h3');
+    if(title) title.textContent = 'Aniversariantes do dia';
+    const monthLabel = panel.querySelector('.card-header .dash-updated-v11');
+    if(monthLabel) monthLabel.textContent = new Date().toLocaleDateString('pt-BR');
+
+    const minis = panel.querySelectorAll('.birthday-mini-v21');
+    if(minis[1]) minis[1].remove();
+    if(minis[0]){
+      const label = minis[0].querySelector('span');
+      if(label) label.textContent = 'Hoje';
+    }
+
+    Array.from(panel.querySelectorAll('.birthday-section-title-v21')).forEach(sectionTitle => {
+      if((sectionTitle.textContent || '').toLowerCase().includes('aniversariantes do mês')){
+        const section = sectionTitle.parentElement;
+        if(section){
+          section.classList.add('birthday-month-section-v22');
+          section.remove();
+        }
+      }
+    });
+    panel.querySelectorAll('.birthday-whatsapp-v21').forEach(btn => {
+      btn.style.textDecoration = 'none';
+    });
+  }
+  function wrapDashboardV22(){
+    if(window.__birthdayTodayOnlyWrappedV22) return;
+    window.__birthdayTodayOnlyWrappedV22 = true;
+    const old = window.renderBirthdayPanelV21 || window.renderDashboardV11;
+    if(typeof old === 'function' && old === window.renderBirthdayPanelV21){
+      window.renderBirthdayPanelV21 = function(){
+        const result = old.apply(this, arguments);
+        setTimeout(trimBirthdayPanelV22, 20);
+        return result;
+      };
+    }
+    const oldDash = window.renderDashboardV11;
+    if(typeof oldDash === 'function'){
+      window.renderDashboardV11 = function(){
+        const result = oldDash.apply(this, arguments);
+        setTimeout(trimBirthdayPanelV22, 80);
+        return result;
+      };
+    }
+  }
+  function boot(){
+    wrapDashboardV22();
+    trimBirthdayPanelV22();
+    setTimeout(trimBirthdayPanelV22, 200);
+    setTimeout(trimBirthdayPanelV22, 800);
   }
   document.addEventListener('DOMContentLoaded', boot);
   if(document.readyState !== 'loading') boot();
